@@ -368,21 +368,13 @@ function isDesktopDevice() {
 function calculateCanvasSize() {
   const w = window.innerWidth || document.documentElement.clientWidth;
   const h = window.innerHeight || document.documentElement.clientHeight;
-  let displayW, displayH;
-  if (h < 600 && w > h) { // landscape mobile/tablet
-    displayW = w - 4; displayH = h - 4;
-  } else if (w < 900) { // portrait mobile
-    displayW = Math.min(w - 10, 800); displayH = Math.min(h - 60, 700);
-  } else if (w >= 2560 || h >= 1440) { // 1440p desktop
-    displayW = Math.min(w - 80, 2200); displayH = Math.min(h - 120, 1100);
-  } else if (w >= 1920 && h >= 900) { // large desktop
-    displayW = Math.min(w - 60, 1800); displayH = Math.min(h - 100, 950);
-  } else { // tablet or small laptop - use full window
-    displayW = w - 4; displayH = h - 4;
-  }
+  // Display size = always full viewport (minus tiny margins)
+  const displayW = w;
+  const displayH = h;
+  // Render resolution = display / scale, preserves aspect ratio
   const scale = isDesktop ? 1 : mobileScale;
-  CONFIG.CANVAS_WIDTH = Math.round(displayW / scale);
-  CONFIG.CANVAS_HEIGHT = Math.round(displayH / scale);
+  CONFIG.CANVAS_WIDTH = Math.max(400, Math.round(displayW / scale));
+  CONFIG.CANVAS_HEIGHT = Math.max(300, Math.round(displayH / scale));
   return { displayW, displayH };
 }
 
@@ -390,6 +382,7 @@ function applyCanvasSize() {
   calculateCanvasSize();
   canvas.width = CONFIG.CANVAS_WIDTH;
   canvas.height = CONFIG.CANVAS_HEIGHT;
+  // Canvas always fills the container exactly (aspect ratios match → no distortion)
   canvas.style.width = '100%';
   canvas.style.height = '100%';
   container.style.width = '100vw';
